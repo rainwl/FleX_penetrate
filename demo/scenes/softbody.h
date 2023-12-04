@@ -1,5 +1,5 @@
-
-
+#ifndef softbody
+#define softbody
 class SoftBody : public Scene
 {
 
@@ -407,3 +407,4 @@ public:
 		g_params.numPlanes = 2;
 	}
 };
+#endif
