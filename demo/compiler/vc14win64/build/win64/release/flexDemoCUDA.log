@@ -1,0 +1,72 @@
+﻿cl : command line  warning D9002: ignoring unknown option '/arch:SSE2'
+  imgui.cpp
+  main.cpp
+  shadersDemoContext.cpp
+  aabbtree.cpp
+  core.cpp
+  extrude.cpp
+  maths.cpp
+  mesh.cpp
+  perlin.cpp
+  pfm.cpp
+  platform.cpp
+  png.cpp
+  sdf.cpp
+  tga.cpp
+  voxelize.cpp
+  imguiRenderGL.cpp
+  shader.cpp
+  shadersGL.cpp
+  appD3D11Ctx.cpp
+  debugLineRenderD3D11.cpp
+  Compiling...
+  demoContextD3D11.cpp
+  diffuseRenderD3D11.cpp
+  fluidRenderD3D11.cpp
+  imguiGraphD3D11.cpp
+  imguiInteropD3D11.cpp
+  meshRenderD3D11.cpp
+  pointRenderD3D11.cpp
+  renderTargetD3D11.cpp
+  shadowMapD3D11.cpp
+  appD3D12Ctx.cpp
+  bufferD3D12.cpp
+  demoContextD3D12.cpp
+  diffusePointRenderPipelineD3D12.cpp
+  fluidCompositeRenderPipelineD3D12.cpp
+  fluidEllipsoidRenderPipelineD3D12.cpp
+  fluidSmoothRenderPipelineD3D12.cpp
+  fluidThicknessRenderPipelineD3D12.cpp
+  imguiGraphD3D12.cpp
+  imguiInteropD3D12.cpp
+  lineRenderPipelineD3D12.cpp
+  Compiling...
+  meshRenderer.cpp
+  meshRendererD3D12.cpp
+  meshRenderPipelineD3D12.cpp
+  meshUtil.cpp
+  NvCoDx12CircularResourceHeap.cpp
+  NvCoDx12CounterFence.cpp
+  NvCoDx12DescriptorHeap.cpp
+  NvCoDx12HelperUtil.cpp
+  NvCoDx12RenderTarget.cpp
+  NvCoDx12Resource.cpp
+  NvCoDx12ResourceScopeManager.cpp
+  NvCoDxDebugUtil.cpp
+  NvCoDxFormatUtil.cpp
+  NvCoFreeList.cpp
+  pipelineUtilD3D12.cpp
+  pointRenderPipelineD3D12.cpp
+  renderStateD3D12.cpp
+  appGraphCtxLoader.cpp
+  imguiGraph.cpp
+  imguiGraphLoader.cpp
+  Compiling...
+  loader.cpp
+  renderParamsD3D.cpp
+     Creating library ./../../../bin/win64\NvFlexDemoReleaseCUDA_x64.lib and object ./../../../bin/win64\NvFlexDemoReleaseCUDA_x64.exp
+  Generating code
+  Previous IPDB not found, fall back to full compilation.
+  All 5213 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  Finished generating code
+  flexDemoCUDA.vcxproj -> C:\Users\22153\Documents\Repository\FleX_penetrate\bin\win64\NvFlexDemoReleaseCUDA_x64.exe
