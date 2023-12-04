@@ -7,3 +7,5 @@
 # android
 *.apk
 demo/compiler/vc14win64/.idea/.idea.flexDemoCUDA/.idea/
+
+demo/compiler/vc14win64/build/win64/release/
