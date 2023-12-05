@@ -241,7 +241,7 @@ public:
 
         Quat rot = QuatFromAxisAngle(Vec3(0.0f, 1.0f, 0.0f), 1.0f-cosf(rotationSpeed*time));
         Quat prevRot = QuatFromAxisAngle(Vec3(0.0f, 1.0f, 0.0f), 1.0f-cosf(rotationSpeed*lastTime));
-        AddCapsule(0.1f, 1.5f, pos, rot);
+        AddCapsule(0.12f, 2.0f, pos, rot);
         g_buffers->shapePrevPositions[0] = Vec4(prevPos, 0.0f);
         g_buffers->shapePrevRotations[0] = prevRot;
 
