@@ -388,7 +388,7 @@ public:
 
 		// fix any particles in the wall
 		for (int i = 0; i < int(g_buffers->positions.size()); ++i)
-			if (g_buffers->positions[i].x < mRadius)
+			if (g_buffers->positions[i].x < 0.1f|| g_buffers->positions[i].x > 1.5f)
 				g_buffers->positions[i].w = 0.0f;
 	}
 
@@ -408,9 +408,10 @@ public:
 	virtual void PostInitialize()
 	{
 		SoftBody::PostInitialize();
-
-		(Vec4&)g_params.planes[1] = Vec4(1.0f, 0.0f, 0.0f, 0.0f);
-		g_params.numPlanes = 2;
+		//
+		// (Vec4&)g_params.planes[1] = Vec4(1.0f, 0.0f, 0.0f, 0.0f);
+		//
+		// g_params.numPlanes = 2;
 	}
 };
 #endif

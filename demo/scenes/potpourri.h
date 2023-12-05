@@ -215,11 +215,37 @@ public:
             if (g_buffers->positions[i].y < 0.0f)
                 g_buffers->positions[i].w = 0.0f;
 #pragma endregion
+
+        for (int i = 0; i < int(g_buffers->positions.size()); ++i)
+            if (g_buffers->positions[i].z < 0.3f|| g_buffers->positions[i].z > 2.7f)
+                g_buffers->positions[i].w = 0.0f;
     }
 
-    virtual void Update() override
+    void Update() override
     {
-        
+        ClearShapes();
+
+        mTime += g_dt;
+
+        // let cloth settle on object
+        float startTime = 1.0f;
+
+        float time = Max(0.0f, mTime-startTime);
+        float lastTime = Max(0.0f, time-g_dt);
+
+        const float rotationSpeed = 1.0f;
+        const float translationSpeed = 1.0f;
+
+        Vec3 pos = Vec3(translationSpeed*(1.0f-cosf(time)), 0.5f, 0.0f);
+        Vec3 prevPos = Vec3(translationSpeed*(1.0f-cosf(lastTime)), 0.5f, 0.0f);
+
+        Quat rot = QuatFromAxisAngle(Vec3(0.0f, 1.0f, 0.0f), 1.0f-cosf(rotationSpeed*time));
+        Quat prevRot = QuatFromAxisAngle(Vec3(0.0f, 1.0f, 0.0f), 1.0f-cosf(rotationSpeed*lastTime));
+        AddCapsule(0.1f, 1.5f, pos, rot);
+        g_buffers->shapePrevPositions[0] = Vec4(prevPos, 0.0f);
+        g_buffers->shapePrevRotations[0] = prevRot;
+
+        UpdateShapes();
     }
 
     NvFlexTriangleMeshId meshid;
@@ -388,4 +414,5 @@ private:
     }
 
     bool plasticDeformation;
+    float mTime;
 };
