@@ -9,3 +9,7 @@
 demo/compiler/vc14win64/.idea/.idea.flexDemoCUDA/.idea/
 
 demo/compiler/vc14win64/build/win64/release/
+
+bin/win64/NvFlexDemoReleaseCUDA_x64.exe.pdb
+
+bin/win64/NvFlexDemoReleaseCUDA_x64.exe

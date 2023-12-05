@@ -18,6 +18,7 @@ public:
 
     virtual void Initialize()
     {
+#pragma region g_params
         float radius = mRadius;
         // no fluids or sdf based collision
         g_solverDesc.featureMode = eNvFlexFeatureModeSimpleSolids;
@@ -43,26 +44,32 @@ public:
         g_emitters[0].mEnabled = true;
         g_emitters[0].mSpeed = (g_params.radius * 2.0f / g_dt);
         mRenderingInstances.resize(0);
+        // expand radius for better self collision
+        g_params.radius *= 1.5f;
+        g_lightDistance *= 1.5f;
+#pragma endregion
 
+#pragma region soft body
         // build soft bodies 
         for (const auto &i : soft_body)
             CreateSoftBody(i, mRenderingInstances.size()); // NOLINT(bugprone-narrowing-conversions)
+#pragma endregion
 
+#pragma region mesh
         int group = 2;
-
-
-        //AddPlinth();
-
         Mesh *bowl = ImportMesh(GetFilePathByPlatform("../../data/bowl.obj").c_str());
         bowl->Normalize(2.0f);
         bowl->CalculateNormals();
         bowl->Transform(TranslationMatrix(Point3(-1.0f, 0.0f, -1.0f)));
 
-        NvFlexTriangleMeshId mesh = CreateTriangleMesh(bowl);
-        AddTriangleMesh(mesh, Vec3(), Quat(), 1.0f);
+        //NvFlexTriangleMeshId mesh = CreateTriangleMesh(bowl);
+        meshid = CreateTriangleMesh(bowl);
+        AddTriangleMesh(meshid, Vec3(), Quat(), 1.0f);
 
         delete bowl;
+#pragma endregion
 
+#pragma region rigid
         Vec3 lower(0.0f, 1.5f + g_params.radius * 0.25f, 0.0f);
 
 
@@ -73,20 +80,25 @@ public:
         int sy = 4;
         int sz = 2;
 
-        Mesh* mesh_r = ImportMesh(GetFilePathByPlatform("../../data/box.ply").c_str());
+        Mesh *mesh_r = ImportMesh(GetFilePathByPlatform("../../data/box.ply").c_str());
 
         // create a basic grid
-        for (int y=0; y < dimy; ++y)
-            for (int z=0; z < dimz; ++z)
-                for (int x=0; x < dimx; ++x)
+        for (int y = 0; y < dimy; ++y)
+            for (int z = 0; z < dimz; ++z)
+                for (int x = 0; x < dimx; ++x)
                     CreateParticleShape(
-                    mesh_r,
-                    (g_params.radius*0.905f)*Vec3(float(x*sx), float(y*sy), float(z*sz)) + (g_params.radius*0.1f)*Vec3(float(x),float(y),float(z)) + lower,
-                    g_params.radius*0.9f*Vec3(float(sx), float(sy), float(sz)), 0.0f, g_params.radius*0.9f, Vec3(0.0f), 1.0f, true, 1.0f, NvFlexMakePhase(g_buffers->rigidOffsets.size()+1, 0), false, 0.002f);// 0.002f);
-		
+                        mesh_r,
+                        (g_params.radius * 0.905f) * Vec3(float(x * sx), float(y * sy), float(z * sz)) + (g_params.
+                            radius * 0.1f) * Vec3(float(x), float(y), float(z)) + lower,
+                        g_params.radius * 0.9f * Vec3(float(sx), float(sy), float(sz)), 0.0f, g_params.radius * 0.9f,
+                        Vec3(0.0f), 1.0f, true, 1.0f, NvFlexMakePhase(g_buffers->rigidOffsets.size() + 1, 0), false,
+                        0.002f); // 0.002f);
+
 
         delete mesh_r;
-        
+#pragma endregion
+
+#pragma region sdf
 
         float maxShapeRadius = 0.25f;
         float minShapeRadius = 0.1f;
@@ -134,7 +146,7 @@ public:
                         }
                     case 4:
                         {
-                            AddTriangleMesh(mesh, shapeTranslation, shapeRotation, Randf(0.5f, 1.0f) * maxShapeRadius);
+                            AddTriangleMesh(meshid, shapeTranslation, shapeRotation, Randf(0.5f, 1.0f) * maxShapeRadius);
                             break;
                         }
                     case 5:
@@ -202,61 +214,16 @@ public:
         for (int i = 0; i < int(g_buffers->positions.size()); ++i)
             if (g_buffers->positions[i].y < 0.0f)
                 g_buffers->positions[i].w = 0.0f;
-
-        // expand radius for better self collision
-        g_params.radius *= 1.5f;
-        g_lightDistance *= 1.5f;
+#pragma endregion
     }
 
-    virtual void Draw(int pass)
+    virtual void Update() override
     {
-        // if (!g_drawMesh)
-        //     return;
-        //
-        // for (int s = 0; s < int(mRenderingInstances.size()); ++s)
-        // {
-        //     const RenderingInstance &instance = mRenderingInstances[s];
-        //
-        //     Mesh m;
-        //     m.m_positions.resize(instance.mMesh->m_positions.size());
-        //     m.m_normals.resize(instance.mMesh->m_normals.size());
-        //     m.m_indices = instance.mMesh->m_indices;
-        //
-        //     for (int i = 0; i < int(instance.mMesh->m_positions.size()); ++i)
-        //     {
-        //         Vec3 softPos;
-        //         Vec3 softNormal;
-        //
-        //         for (int w = 0; w < 4; ++w)
-        //         {
-        //             const int cluster = instance.mSkinningIndices[i * 4 + w];
-        //             const float weight = instance.mSkinningWeights[i * 4 + w];
-        //
-        //             if (cluster > -1)
-        //             {
-        //                 // offset in the global constraint array
-        //                 int rigidIndex = cluster + instance.mOffset;
-        //
-        //                 Vec3 localPos = Vec3(instance.mMesh->m_positions[i]) - instance.mRigidRestPoses[cluster];
-        //
-        //                 Vec3 skinnedPos = g_buffers->rigidTranslations[rigidIndex] + Rotate(
-        //                     g_buffers->rigidRotations[rigidIndex], localPos);
-        //                 Vec3 skinnedNormal = Rotate(g_buffers->rigidRotations[rigidIndex],
-        //                                             instance.mMesh->m_normals[i]);
-        //
-        //                 softPos += skinnedPos * weight;
-        //                 softNormal += skinnedNormal * weight;
-        //             }
-        //         }
-        //
-        //         m.m_positions[i] = Point3(softPos);
-        //         m.m_normals[i] = softNormal;
-        //     }
-        //
-        //     DrawMesh(&m, instance.mColor);
-        // }
+        
     }
 
+    NvFlexTriangleMeshId meshid;
+    
     float mRadius;
 
     std::vector<SoftBody::Instance> soft_body;
