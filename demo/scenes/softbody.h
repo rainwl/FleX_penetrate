@@ -130,6 +130,7 @@ public:
 
 	virtual void Initialize()
 	{
+		
 		float radius = mRadius;
 
 		// no fluids or sdf based collision
@@ -157,10 +158,14 @@ public:
 
 		mRenderingInstances.resize(0);
 
+		Vec3 lower(0.0f, 4.2f + g_params.radius * 0.25f, 0.0f);
+		
 		// build soft bodies 
 		for (int i = 0; i < int(mInstances.size()); i++)
 			CreateSoftBody(mInstances[i], mRenderingInstances.size());
 
+
+		
 		if (mPlinth) 
 			AddPlinth();
 
@@ -173,6 +178,7 @@ public:
 		g_params.radius *= 1.5f;
 
 		g_lightDistance *= 1.5f;
+
 	}
 
 	void CreateSoftBody(Instance instance, int group = 0)
