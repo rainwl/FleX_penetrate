@@ -44,7 +44,7 @@ public:
 			mClusterRadius(0.0f),
 			mClusterStiffness(0.5f),
 
-			mLinkRadius(0.0f),
+			mLinkRadius(2.0f),
 			mLinkStiffness(1.0f),
 
 			mGlobalStiffness(0.0f),
