@@ -5,46 +5,36 @@ class PotPourri : public Scene
 public:
     PotPourri(const char *name) : Scene(name), mRadius(0.1f)
     {
-        SoftBody::Instance fat("../../data/fat.obj");
-        fat.mScale = Vec3(32.0f);
-        fat.mClusterSpacing = 1.75f;
-        fat.mClusterRadius = 2.0f; //3.0f
-        fat.mClusterStiffness = 1.f; //0.15f
-        fat.mSurfaceSampling = 1.0f;
-        soft_body.push_back(fat);
+        SoftBodyFixed::Instance rod("../../data/box_very_high.ply");
+        rod.mScale = Vec3(2.0f, 2.0f, 20.0f);
+        rod.mTranslation = Vec3(0.0f, 1.0f, 0.0f);
+        
+        rod.mClusterSpacing = 2.0f;
+        rod.mClusterRadius = 2.0f;
+        rod.mClusterStiffness = 0.225f;
+        
+        soft_body.push_back(rod);
 
         plasticDeformation = false;
     }
 
-    virtual void Initialize()
+    void Initialize() override
     {
 #pragma region g_params
         float radius = mRadius;
         // no fluids or sdf based collision
         g_solverDesc.featureMode = eNvFlexFeatureModeSimpleSolids;
         g_params.radius = radius;
-        g_params.dynamicFriction = 1.0f; //0.35f
-        g_params.particleFriction = 1.0f; //0.25f
+        g_params.dynamicFriction = 0.35f; //0.35f
+        g_params.particleFriction = 0.25f; //0.25f
         g_params.numIterations = 4;
         g_params.collisionDistance = radius * 0.75f;
         g_params.relaxationFactor = 1.0f;
         g_windStrength = 0.0f;
         g_numSubsteps = 2;
         g_buffers->rigidOffsets.push_back(0);
-
-
         g_numSubsteps = 2;
-        g_params.staticFriction = 1.0f; //0.7
-        g_params.dissipation = 0.01f;
-        g_params.particleCollisionMargin = g_params.radius * 0.05f;
-        g_params.sleepThreshold = g_params.radius * 0.25f;
-        g_params.damping = 0.25f;
-        g_params.maxAcceleration = 400.0f;
-        g_params.shockPropagation = 3.f;
-        g_emitters[0].mEnabled = true;
-        g_emitters[0].mSpeed = (g_params.radius * 2.0f / g_dt);
         mRenderingInstances.resize(0);
-        // expand radius for better self collision
         g_params.radius *= 1.5f;
         g_lightDistance *= 1.5f;
 #pragma endregion
@@ -56,7 +46,7 @@ public:
 #pragma endregion
 
         for (int i = 0; i < g_buffers->positions.size(); ++i)
-            if (g_buffers->positions[i].z < 0.1f || g_buffers->positions[i].z > 3.1f)
+            if (g_buffers->positions[i].z < 0.05f || g_buffers->positions[i].z > 1.95f)
                 g_buffers->positions[i].w = 0.0f;
     }
 
