@@ -6,13 +6,14 @@ public:
     PotPourri(const char *name) : Scene(name), mRadius(0.1f)
     {
         SoftBodyFixed::Instance rod("../../data/box_very_high.ply");
-        rod.mScale = Vec3(2.0f, 2.0f, 20.0f);
+        rod.mScale = Vec3(20.0f, 2.0f, 2.0f);
         rod.mTranslation = Vec3(0.0f, 1.0f, 0.0f);
-        
+
         rod.mClusterSpacing = 2.0f;
         rod.mClusterRadius = 2.0f;
-        rod.mClusterStiffness = 0.225f;
-        
+        rod.mClusterStiffness = 0.225f;//0.225f
+        rod.mLinkRadius = 1.0f;
+        rod.mLinkStiffness = 0.7f;
         soft_body.push_back(rod);
 
         plasticDeformation = false;
@@ -46,50 +47,43 @@ public:
 #pragma endregion
 
         for (int i = 0; i < g_buffers->positions.size(); ++i)
-            if (g_buffers->positions[i].z < 0.05f || g_buffers->positions[i].z > 1.95f)
+            if (g_buffers->positions[i].x < 0.05f || g_buffers->positions[i].x > 1.95f)
                 g_buffers->positions[i].w = 0.0f;
     }
 
+    
     void Update() override
     {
-        ClearShapes();
-    
-        mTime += g_dt;
-    
-        // let cloth settle on object
-        float startTime = 1.0f;
-    
-        float time = Max(0.0f, mTime - startTime);
-        float lastTime = Max(0.0f, time - g_dt);
-    
-        const float rotationSpeed = 1.0f;
-        const float translationSpeed = 1.0f;
-    
-        // Vec3 pos = Vec3(translationSpeed*(1.0f-cosf(time)), 1.0f, 1.0f);
-        // Vec3 prevPos = Vec3(translationSpeed*(1.0f-cosf(lastTime)), 1.0f, 1.0f);
-    
-        Vec3 pos = Vec3(translationSpeed * (1.0f), 1.0f - cosf(time), 1.5f);
-        Vec3 prevPos = Vec3(translationSpeed * (1.0f), 1.0f - cosf(time), 1.5f);
+        // ClearShapes();
+        // mTime += g_dt;
         //
-        // Quat rot = QuatFromAxisAngle(Vec3(0.0f, 1.0f, 0.0f), 1.0f-cosf(rotationSpeed*time));
-        // Quat prevRot = QuatFromAxisAngle(Vec3(0.0f, 1.0f, 0.0f), 1.0f-cosf(rotationSpeed*lastTime));
-    
-        Quat rot = QuatFromAxisAngle(Vec3(0.0f, 1.0f, 0.0f), 0.0f);
-        Quat prevRot = QuatFromAxisAngle(Vec3(0.0f, 1.0f, 0.0f), 0.0f);
-        AddCapsule(0.12f, 2.0f, pos, rot);
-        g_buffers->shapePrevPositions[0] = Vec4(prevPos, 0.0f);
-        g_buffers->shapePrevRotations[0] = prevRot;
-    
-    
-        Vec3 pos2 = Vec3(translationSpeed * (0.0f - cosf(time)), 0.7f, 2.3f );
-        Vec3 prevPos2 = Vec3(translationSpeed * (0.0f - cosf(time)), 0.7f, 2.3f);
-    
-    
-        AddCapsule(0.1f, 0.5f, pos2, rot);
-        g_buffers->shapePrevPositions[1] = Vec4(prevPos2,0.0f);
-        g_buffers->shapePrevRotations[1] = prevRot;
-        
-        UpdateShapes();
+        // constexpr float start_time = 1.0f;
+        //
+        // const float time = Max(0.0f, mTime - start_time);
+        // float last_time = Max(0.0f, time - g_dt);
+        //
+        // constexpr float rotation_speed = 1.0f;
+        // constexpr float translation_speed = 1.0f;
+        //
+        // const auto pos = Vec3(translation_speed * (1.0f), 1.0f - cosf(time), 1.5f);
+        // const auto prev_pos = Vec3(translation_speed * (1.0f), 1.0f - cosf(time), 1.5f);
+        //
+        // Quat rot = QuatFromAxisAngle(Vec3(0.0f, 1.0f, 0.0f), 0.0f);
+        // Quat prevRot = QuatFromAxisAngle(Vec3(0.0f, 1.0f, 0.0f), 0.0f);
+        // AddCapsule(0.12f, 2.0f, pos, rot);
+        // g_buffers->shapePrevPositions[0] = Vec4(prev_pos, 0.0f);
+        // g_buffers->shapePrevRotations[0] = prevRot;
+        //
+        //
+        // Vec3 pos2 = Vec3(translation_speed * (0.0f - cosf(time)), 0.7f, 2.3f);
+        // Vec3 prevPos2 = Vec3(translation_speed * (0.0f - cosf(time)), 0.7f, 2.3f);
+        //
+        //
+        // AddCapsule(0.1f, 0.5f, pos2, rot);
+        // g_buffers->shapePrevPositions[1] = Vec4(prevPos2, 0.0f);
+        // g_buffers->shapePrevRotations[1] = prevRot;
+        //
+        // UpdateShapes();
     }
 
     NvFlexTriangleMeshId meshid;
