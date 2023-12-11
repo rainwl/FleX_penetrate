@@ -6,14 +6,15 @@ public:
     PotPourri(const char *name) : Scene(name), mRadius(0.1f)
     {
         SoftBodyFixed::Instance rod("../../data/box_very_high.ply");
-        rod.mScale = Vec3(20.0f, 2.0f, 2.0f);
+        rod.mScale = Vec3(20.0f, 20.0f, 2.0f);
         rod.mTranslation = Vec3(0.0f, 1.0f, 0.0f);
 
         rod.mClusterSpacing = 2.0f;
-        rod.mClusterRadius = 2.0f;
-        rod.mClusterStiffness = 0.225f;//0.225f
-        rod.mLinkRadius = 1.0f;
-        rod.mLinkStiffness = 0.7f;
+        rod.mClusterRadius = 3.0f;
+        rod.mClusterStiffness = .5f;//0.225f
+        rod.mLinkRadius = 1.f;
+        rod.mLinkStiffness = 1.f;
+        
         soft_body.push_back(rod);
 
         plasticDeformation = false;
@@ -31,6 +32,7 @@ public:
         g_params.numIterations = 4;
         g_params.collisionDistance = radius * 0.75f;
         g_params.relaxationFactor = 1.0f;
+        g_params.damping =20;
         g_windStrength = 0.0f;
         g_numSubsteps = 2;
         g_buffers->rigidOffsets.push_back(0);
