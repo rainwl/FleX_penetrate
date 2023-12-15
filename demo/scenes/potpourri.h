@@ -14,8 +14,18 @@ public:
         rod.mClusterStiffness = .5f;//0.225f
         rod.mLinkRadius = 1.f;
         rod.mLinkStiffness = 1.f;
+
+        SoftBodyFixed::Instance rod2("../../data/box_very_high.ply");
+        rod2.mScale = Vec3(20.0f, 20.0f, 2.0f);
+        rod2.mTranslation = Vec3(0.0f, 4.0f, 0.0f);
+
+        rod2.mClusterSpacing = 2.0f;
+        rod2.mClusterRadius = 3.0f;
+        rod2.mClusterStiffness = .5f;//0.225f
+        rod2.mLinkRadius = 1.f;
+        rod2.mLinkStiffness = 1.f;
         
-        soft_body.push_back(rod);
+        soft_body.push_back(rod2);
 
         plasticDeformation = false;
     }
