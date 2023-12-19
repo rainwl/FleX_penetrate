@@ -21,3 +21,7 @@ bin/win64/NvFlexExtReleaseCUDA_x64.dll
 bin/win64/NvFlexExtReleaseCUDA_x64.dll.pdb
 
 extensions/compiler/vc14win64/build/win64/release/NvFlexExtReleaseCUDA_x64.iobj
+
+extensions/compiler/vc14win64/build/win64/release/
+
+extensions/compiler/vc14win64/x64/release/
