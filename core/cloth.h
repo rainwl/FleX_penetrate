@@ -421,10 +421,17 @@ public:
 		int destIndex;
 	};
 
+	//它的目的是将一个网格中多个相连的三角形组件从一个共享的顶点中分离出来，同时确保网格的拓扑结构被适当地更新
 	int SeparateVertex(int singularVertex, std::vector<TriangleUpdate>& replacements, std::vector<VertexCopy>& copies, int maxCopies)
 	{
+		//它接受一个整型参数singularVertex（表示要处理的单一顶点的索引），两个向量的引用参数replacements和copies（用于存储替换和复制操作的结果），以及一个整型参数maxCopies（用于限制可以创建的顶点复制的最大数量）
+
+		//声明一个整型向量adjacentTriangles，用于存储所有与singularVertex相邻的三角形的索引
 		std::vector<int> adjacentTriangles;
 
+		//遍历mTris（一个包含网格所有三角形的向量），
+		//并找出所有包含singularVertex顶点的三角形。
+		//这些三角形的索引被添加到adjacentTriangles向量中
 		// gather adjacent triangles
 		for (int i=0; i < int(mTris.size()); ++i)
 		{
@@ -432,46 +439,59 @@ public:
 				adjacentTriangles.push_back(i);
 		}
 
+		//初始化一个整型变量componentCount，用于记录已经识别的连通组件的数量
 		// number of identified components
 		int componentCount = 0;
 
+		//初始化一个整型变量newIndex，用于存储新顶点的索引。第一个连通组件将保留现有的singularVertex
 		// first component keeps the existing vertex
 		int newIndex = singularVertex;
 
+		//遍历所有相邻的三角形。如果已达到maxCopies的限制，则退出循环
 		// while connected tris not colored
 		for (int i=0; i < int(adjacentTriangles.size()); ++i)
 		{
 			if (maxCopies == 0)
 				break;
 
+			//从adjacentTriangles中取出一个三角形的索引，称为seed
 			// pop off a triangle
 			int seed = adjacentTriangles[i];
-			
+
+			//如果这个三角形已经被分配到了一个组件中，则跳过它
 			// triangle already belongs to a component
 			if (mTris[seed].component != -1)
 				continue;
 
+			//创建一个栈stack，并将seed三角形的索引压入栈中
 			std::vector<int> stack;
 			stack.push_back(seed);
 
+			//当栈不为空时，循环执行。从栈中取出一个三角形的索引t
 			while (!stack.empty())
 			{
 				int t = stack.back();
 				stack.pop_back();
 
+				//获取索引t对应的三角形对象tri的引用
 				Triangle& tri = mTris[t];
 
+				//如果三角形tri已经属于当前组件（componentCount），则这表示我们完成了对当前连通组件的遍历
 				// test if we're back to the beginning, in which case the component is fully connected
 				if (tri.component == componentCount)									
 					break;
-				
+
+				//断言确保当前三角形tri尚未分配到任何组件中
 				assert(tri.component == -1);
 
+				//将三角形tri分配到当前的组件componentCount
 				tri.component = componentCount;
 
+				//在三角形tri中，将singularVertex替换为newIndex。此操作返回被替换的顶点在三角形中的局部索引v
 				// update triangle
 				int v = tri.ReplaceVertex(singularVertex, newIndex);
 
+				//如果singularVertex和newIndex不相同，即该顶点已经被复制到了一个新的位置，则创建一个TriangleUpdate结构体r来记录这次替换。这个结构体记录了被替换的三角形索引和新的顶点索引，然后将这个结构体添加到replacements向量中
 				if (singularVertex != newIndex)
 				{
 					// output replacement
@@ -481,16 +501,19 @@ public:
 					replacements.push_back(r);
 				}
 
+				//接下来的循环通过三角形的三条边来更新网格。获取当前三角形第e条边的引用
 				// update mesh
 				for (int e=0; e < 3; ++e)
 				{
 					Edge& edge = mEdges[tri.edges[e]];
 
+					//如果这条边包含singularVertex，则将边中的singularVertex替换为newIndex
 					if (edge.Contains(singularVertex))
 					{
 						// update edge to point to new vertex
 						edge.Replace(singularVertex, newIndex);
 
+						//更新边的伸展约束，确保约束索引数组中的singularVertex也被更新为newIndex。如果没有找到singularVertex，则触发一个断言错误
 						const int stretching = edge.stretchConstraint;
 						if (mConstraintIndices[stretching*2+0] == singularVertex)
 							mConstraintIndices[stretching*2+0] = newIndex;
@@ -499,6 +522,7 @@ public:
 						else
 							assert(0);
 
+						//对于每条边，除了更新伸展约束之外，如果边不是边界边，则将与其相邻的未处理的三角形压入栈中以供后续处理。如果边不含singularVertex，则检查和可能更新该边的弯曲约束。
 						if (!edge.IsBoundary())
 						{
 							// push unprocessed neighbors on stack
@@ -526,6 +550,7 @@ public:
 				}	
 			}
 
+			//如果创建了一个新的顶点（singularVertex与newIndex不同），则记录这次复制操作，增加顶点计数器mNumVertices，并减少可以进行的复制操作的剩余次数maxCopies
 			// copy vertex
 			if (singularVertex != newIndex)
 			{
@@ -539,12 +564,14 @@ public:
 				maxCopies--;
 			}
 
+			//完成一个组件的遍历后，设置newIndex为下一个新的顶点索引，并增加组件计数器componentCount
 			// component traversal finished
 			newIndex = mNumVertices;
 
 			componentCount++;
 		}
 
+		//该代码段完成了组件分离的最后步骤，它将所有相邻三角形的组件索引重置为 -1，以便它们可以在未来的操作中被重新分类。这里不再需要断言，因为该步骤是清理过程的一部分，不需要验证三角形是否已被分配组件索引
 		// reset component indices
 		for (int i=0; i < int(adjacentTriangles.size()); ++i)
 		{
@@ -552,22 +579,48 @@ public:
 
 			mTris[adjacentTriangles[i]].component = -1;
 		} 
+		//最后，该函数返回componentCount，即在该顶点处分离出的连通组件的数量。这个返回值可能对调用该函数的上层代码有用，可能用于验证操作的成功，或用于进一步的逻辑决策。
 
+		// 总的来说，这个函数通过以下步骤来处理网格数据：
+// 
+		// 找出所有与特定顶点相邻的三角形。
+		// 使用深度优先搜索（通过栈实现）来识别相连的三角形组件，并将新的或现有的顶点索引分配给这些组件中的三角形。
+		// 更新相关的三角形、边缘以及它们的约束，以反映顶点的分离和复制。
+		// 在处理过程中，记录顶点的复制和三角形顶点的更新。
+		// 重置相邻三角形的组件索引以供将来使用。
+		// 注意，虽然这段代码在逻辑上是连贯的，但由于它依赖于很多未显示定义的外部结构和状态（如 mTris, mEdges, Edge, Triangle，以及它们的方法如 Contains, ReplaceVertex, IsBoundary 等），因此在没有这些上下文的情况下，完整的功能和性能评估是不完整的。此外，断言（assert）语句用于调试中验证假设，如果这些断言失败，程序将在运行时被终止。在生产环境中，可能需要更稳健的错误处理机制
+		
 		return componentCount;
 	}
 
+	//目的是在模拟物理变形或断裂的过程中，按照一个给定的平面来分割一个网格中的顶点
 	int SplitVertex(const Vec4* vertices, int index, Vec3 splitPlane, std::vector<int>& adjacentTris, std::vector<int>& adjacentVertices, std::vector<TriangleUpdate>& replacements, std::vector<VertexCopy>& copies, int maxCopies)
 	{
+		// vertices: 一个指向顶点数组的指针，每个顶点是一个四维向量 Vec4（可能包含了位置和其他数据，如齐次坐标）。
+		// index: 要分割的顶点在 vertices 数组中的索引。
+		// splitPlane: 分割平面，一个三维向量 Vec3，定义了分割面的方向。
+		// adjacentTris: 一个整数向量，用于存储与分割顶点相邻的三角形索引。
+		// adjacentVertices: 一个整数向量，用于存储与分割顶点相邻的顶点索引。
+		// replacements: 一个 TriangleUpdate 结构体的向量，记录了需要更新的三角形信息。
+		// copies: 一个 VertexCopy 结构体的向量，记录了顶点分割的信息。
+		// maxCopies: 允许的最大复制顶点数量。如果为0，表示不允许复制。
+
+		//函数开始时，先检查是否允许复制顶点
+		//如果 maxCopies 等于0，函数直接返回 -1，表示没有执行任何分割操作
 		if (maxCopies == 0)
 			return -1;
-
+		//接下来，函数计算分割顶点与分割平面的点乘结果，这会用于后面确定三角形相对于分割平面的位置
 		float w = Dot(vertices[index], splitPlane);
 
+		//然后，函数初始化两个计数器，用于分别记录在分割平面两侧的三角形数量
 		int leftCount = 0;
 		int rightCount = 0;
 
+		//接着定义一个新的顶点索引 newIndex，这个索引将用于存储分割后新产生的顶点
+		//mNumVertices 是当前网格中顶点的数量，新顶点将被添加到数组的末尾
 		const int newIndex = mNumVertices;
 
+		//函数的下一部分遍历所有三角形，检查它们是否包含需要分割的顶点
 		// classify all tris attached to the split vertex according 
 		// to which side of the split plane their centroid lies on O(N)
 		for (size_t i = 0; i < mTris.size(); ++i)
@@ -602,6 +655,9 @@ public:
 			}
 		}
 
+		//在这个循环中，函数计算每个包含分割顶点的三角形的质心（中心点），并根据质心与分割平面的相对位置给三角形打上标记（在 tri.side 中保存）。同时，记录每个三角形的索引到 adjacentTris，并将与分割顶点相邻的其他顶点索引保存到 adjacentVertices。
+
+		//接下来的代码段检查如果所有相邻三角形都在分割平面的同一侧，那么不执行分割操作
 		// if all tris on one side of split plane then do nothing
 		if (leftCount == 0 || rightCount == 0)
 			return -1;
@@ -715,6 +771,15 @@ public:
 		mNumVertices++;
 
 		return newIndex;
+		//如果确实需要分割，函数会继续对相邻的三角形进行处理，将位于分割平面一侧的三角形的顶点从原始索引 index 更新为新索引 newIndex。同时记录这些更新到 replacements 向量中。
+
+        //在处理三角形顶点的同时，还需要更新与这些三角形相关的边缘（Edge）信息和约束（约束可能是弯曲的或伸展的）。这包括替换边缘上的旧顶点索引，以及调整相关的约束索引。如果一个边缘连接着位于分割平面两侧的两个三角形，那么它会变成一个暴露的边缘，并且需要创建新的边缘和伸展约束来替代原来的弯曲约束。
+        
+        //完成所有这些更新后，函数会将分割操作的结果保存到 copies 向量中，包括原始顶点和新复制顶点的索引。
+        
+        //最后，函数递增网格中顶点的数量 mNumVertices，并返回新顶点的索引 newIndex。
+        
+        //整个函数的目的是在不改变网格拓扑结构的情况下，将一个顶点分割成两个顶点，并更新网格中三角形、边缘和约束的信息，以便这些信息反映出顶点的分割。这对于实现顶点的精确控制和模拟物理变化非常重要。
 	}
 
 	std::vector<int> mConstraintIndices;
