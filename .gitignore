@@ -25,3 +25,7 @@ extensions/compiler/vc14win64/build/win64/release/NvFlexExtReleaseCUDA_x64.iobj
 extensions/compiler/vc14win64/build/win64/release/
 
 extensions/compiler/vc14win64/x64/release/
+
+demo/compiler/vc14win64/.vs/
+
+
