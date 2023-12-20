@@ -134,12 +134,12 @@ public:
 		float radius = mRadius;
 
 		// no fluids or sdf based collision
-		g_solverDesc.featureMode = eNvFlexFeatureModeSimpleSolids;
+		//g_solverDesc.featureMode = eNvFlexFeatureModeSimpleSolids;
 
 		g_params.radius = radius;
 		g_params.dynamicFriction = 0.35f;
 		g_params.particleFriction = 0.25f;
-		g_params.numIterations = 4;
+		g_params.numIterations = 8;
 		g_params.collisionDistance = radius*0.75f;
 
 		g_params.relaxationFactor = mRelaxationFactor;
@@ -149,12 +149,18 @@ public:
 		g_numSubsteps = 2;
 
 		// draw options
-		g_drawPoints = false;
+		g_drawPoints = true;
 		g_wireframe = false;
 		g_drawSprings = false;
 		g_drawBases = false;
+		
 
-		g_buffers->rigidOffsets.push_back(0);
+        
+		//g_buffers->rigidOffsets.push_back();
+		
+		CreateParticleShape(GetFilePathByPlatform("../../data/box.ply").c_str(), Vec3(5.f, 5.f, 5.0f),
+							0.5f, 0.0f, 0.1f, 0.0f, 1.0f, true, 1.0f,
+							NvFlexMakePhase(10, 0), false, 0.0f);
 
 		mRenderingInstances.resize(0);
 
@@ -163,24 +169,9 @@ public:
 		// build soft bodies 
 		for (int i = 0; i < int(mInstances.size()); i++)
 			CreateSoftBody(mInstances[i], mRenderingInstances.size());
-
-
 		
-		if (mPlinth) 
-			AddPlinth();
-
-		// fix any particles below the ground plane in place
-		for (int i = 0; i < int(g_buffers->positions.size()); ++i)
-			if (g_buffers->positions[i].y < 0.0f)
-				g_buffers->positions[i].w = 0.0f;
-
-		// expand radius for better self collision
-		g_params.radius *= 1.5f;
-
-		g_lightDistance *= 1.5f;
-
 	}
-
+	
 	void CreateSoftBody(Instance instance, int group = 0)
 	{
 		RenderingInstance renderingInstance;
@@ -247,6 +238,7 @@ public:
 		for (int i = 0; i < asset->numParticles; ++i)
 		{
 			g_buffers->positions.push_back(&asset->particles[i * 4]);
+			
 			g_buffers->velocities.push_back(0.0f);
 
 			const int phase = NvFlexMakePhase(group, eNvFlexPhaseSelfCollide | eNvFlexPhaseSelfCollideFilter);
@@ -254,16 +246,16 @@ public:
 		}
 
 		// add shape data to solver
-		for (int i = 0; i < asset->numShapeIndices; ++i)
-			g_buffers->rigidIndices.push_back(asset->shapeIndices[i] + particleOffset);
-
-		for (int i = 0; i < asset->numShapes; ++i)
-		{
-			g_buffers->rigidOffsets.push_back(asset->shapeOffsets[i] + indexOffset);
-			g_buffers->rigidTranslations.push_back(Vec3(&asset->shapeCenters[i * 3]));
-			g_buffers->rigidRotations.push_back(Quat());
-			g_buffers->rigidCoefficients.push_back(asset->shapeCoefficients[i]);
-		}
+		// for (int i = 0; i < asset->numShapeIndices; ++i)
+		// 	g_buffers->rigidIndices.push_back(asset->shapeIndices[i] + particleOffset);
+		//
+		// for (int i = 0; i < asset->numShapes; ++i)
+		// {
+		// 	g_buffers->rigidOffsets.push_back(asset->shapeOffsets[i] + indexOffset);
+		// 	g_buffers->rigidTranslations.push_back(Vec3(&asset->shapeCenters[i * 3]));
+		// 	g_buffers->rigidRotations.push_back(Quat());
+		// 	g_buffers->rigidCoefficients.push_back(asset->shapeCoefficients[i]);
+		// }
 
 
 		// add plastic deformation data to solver, if at least one asset has non-zero plastic deformation coefficients, leave the according pointers at NULL otherwise
