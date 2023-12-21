@@ -163,9 +163,11 @@ public:
 		// 这一行调用了 NvFlex 库的 NvFlexSetSprings 函数，用于将弹簧（或者说是弹性约束）的数据从 CPU 内存同步到 NvFlex 物理求解器
 		// g_buffers->springIndices.buffer: 弹簧索引的 GPU 缓冲区，它指定了每个弹簧连接的两个粒子的索引
 		// g_buffers->springLengths.buffer: 弹簧的静止长度的 GPU 缓冲区，这些值用于计算弹簧力
-		NvFlexSetSprings(g_solver, g_buffers->springIndices.buffer, g_buffers->springLengths.buffer, g_buffers->springStiffness.buffer, g_buffers->springLengths.size());
+		NvFlexSetSprings(g_solver, g_buffers->springIndices.buffer, g_buffers->springLengths.buffer,
+			g_buffers->springStiffness.buffer, g_buffers->springLengths.size());
 		// 这一行调用了 NvFlexSetDynamicTriangles 函数，用于同步动态三角形的数据到求解器
-		NvFlexSetDynamicTriangles(g_solver, g_buffers->triangles.buffer, g_buffers->triangleNormals.buffer, g_buffers->triangles.size() / 3);
+		NvFlexSetDynamicTriangles(g_solver, g_buffers->triangles.buffer, g_buffers->triangleNormals.buffer,
+			g_buffers->triangles.size() / 3);
 		NvFlexSetRestParticles(g_solver, g_buffers->restPositions.buffer, NULL);
 	}
 
