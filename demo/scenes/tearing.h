@@ -89,6 +89,7 @@ public:
 
 	void Update()
 	{
+#pragma region config
 		g_params.wind[0] = 0.1f;
 		g_params.wind[1] = 0.1f;
 		g_params.wind[2] = -0.2f;
@@ -109,10 +110,10 @@ public:
 		// 将模拟中粒子位置的当前状态复制到布料对象的粒子数组中
 		// update asset's copy of the particles
 		memcpy(mCloth->particles, &g_buffers->positions[0], sizeof(Vec4)*g_buffers->positions.size());
-
+#pragma endregion
 		// 对布料网格进行撕裂处理，基于最大应变值，处理粒子的拷贝和三角形的修改
 		NvFlexExtTearClothMesh(mCloth, maxStrain, 4, particleCopies, &numParticleCopies, maxCopies, triangleEdits, &numTriangleEdits, maxEdits);
-
+#pragma region assign
 		// 遍历所有粒子拷贝，将新粒子的数据复制到粒子缓冲区中
 		// copy particles
 		for (int i = 0; i < numParticleCopies; ++i)
@@ -155,6 +156,7 @@ public:
 		g_buffers->springIndices.assign(mCloth->springIndices, mCloth->numSprings * 2);
 		g_buffers->springStiffness.assign(mCloth->springCoefficients, mCloth->numSprings);
 		g_buffers->springLengths.assign(mCloth->springRestLengths, mCloth->numSprings);
+#pragma endregion
 	}
 
 	virtual void Sync()
