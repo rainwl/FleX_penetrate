@@ -37,20 +37,34 @@ public:
 		g_params.surfaceTension = 0.0f;
 
 		const float shapeSize = 2.0f;
-		const Vec3 shapeLower = Vec3(-shapeSize*0.5f, 0.0f, -shapeSize*0.5f);
+		const float DavidSize = 10.0f;
+		const Vec3 shapeLower = Vec3(0, 0.0f, 0.5);
 		const Vec3 shapeUpper = shapeLower + Vec3(shapeSize);
 		const Vec3 shapeCenter = (shapeLower + shapeUpper)*0.5f;
 
 		NvFlexDistanceFieldId sdf = CreateSDF(GetFilePathByPlatform("../../data/bunny.ply").c_str(), 128);
 		AddSDF(sdf, shapeLower, Quat(), shapeSize);
 
-		float emitterSize = 1.f;
+	
+
+		Mesh* bowl = ImportMesh(GetFilePathByPlatform("../../data/dddd.obj").c_str());
+		//bowl->Normalize(2.0f);
+		//bowl->CalculateNormals();
+		bowl->Transform(TranslationMatrix(Point3(-5.0f, 0.0f, -1.0f)));
+
+		NvFlexTriangleMeshId mesh = CreateTriangleMesh(bowl);
+		AddTriangleMesh(mesh, Vec3(0.2,0,-0.1), Quat(), 0.002f);
+
+		delete bowl;
+
+
+		float emitterSize = 0.2f;
 
 		Emitter e;
 		e.mEnabled = true;
 		e.mWidth = int(emitterSize / restDistance);
-		e.mPos = Vec3(shapeCenter.x - 0.2f, shapeUpper.y + 0.75f, shapeCenter.z);
-		e.mDir = Vec3(0.0f, -1.0f, 0.0f);
+		e.mPos = Vec3(0.5, 3.1, 0.33);
+		e.mDir = Vec3(0.0f, -1.0f, 0.9f);
 		e.mRight = Vec3(1.0f, 0.0f, 0.0f);
 		e.mSpeed = (restDistance*2.f / g_dt);
 

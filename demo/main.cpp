@@ -3046,8 +3046,8 @@ int main(int argc, char* argv[])
 	// g_scenes.push_back(new Inflatable("Inflatables"));
 	// g_scenes.push_back(new ClothLayers("Cloth Layers"));
 	// g_scenes.push_back(new SphereCloth("Sphere Cloth"));
-	g_scenes.push_back(new Tearing("Tearing"));
-	// g_scenes.push_back(new Pasta("Pasta"));
+	//g_scenes.push_back(new Tearing("Tearing"));
+	 //g_scenes.push_back(new Pasta("Pasta"));
 	//
 	// // game mesh scenes
 	// g_scenes.push_back(new GameMesh("Game Mesh Rigid", 0));
@@ -3057,10 +3057,10 @@ int main(int argc, char* argv[])
 	// g_scenes.push_back(new RigidDebris("Rigid Debris"));
 	//
 	// // viscous fluids
-	// g_scenes.push_back(new Viscosity("Viscosity Low", 0.5f));
+	 g_scenes.push_back(new Viscosity("Viscosity Low", 0.5f));
 	// g_scenes.push_back(new Viscosity("Viscosity Med", 3.0f));
-	// g_scenes.push_back(new Viscosity("Viscosity High", 5.0f, 0.12f));
-	// g_scenes.push_back(new Adhesion("Adhesion"));
+	 g_scenes.push_back(new Viscosity("Viscosity High", 5.0f, 0.12f));
+	 //g_scenes.push_back(new Adhesion("Adhesion"));
 	// g_scenes.push_back(new GooGun("Goo Gun", true));
 	//
 	// // regular fluids
